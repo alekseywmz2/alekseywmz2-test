@@ -16,57 +16,24 @@ NODES=(
     "https://github.com/crystian/ComfyUI-Crystools" # UI for resource usage monitoring
     "https://github.com/ltdrdata/ComfyUI-Inspire-Pack"
     "https://github.com/ltdrdata/ComfyUI-Impact-Pack"
-    "https://github.com/melMass/comfy_mtb"
     "https://github.com/pythongosssss/ComfyUI-Custom-Scripts"
     "https://github.com/WASasquatch/was-node-suite-comfyui"
-    "https://github.com/daxthin/DZ-FaceDetailer"
-    "https://github.com/cubiq/ComfyUI_essentials"
-    "https://github.com/kijai/ComfyUI-KJNodes"
     "https://github.com/ZHO-ZHO-ZHO/ComfyUI-BRIA_AI-RMBG"
-    "https://github.com/florestefano1975/comfyui-portrait-master"
-    "https://github.com/shiimizu/ComfyUI-PhotoMaker-Plus"
-    "https://github.com/azazeal04/ComfyUI-Styles"
-    "https://github.com/jags111/efficiency-nodes-comfyui"
-    "https://github.com/bash-j/mikey_nodes"
     "https://github.com/cubiq/ComfyUI_InstantID"
-)
-
-CLIP_VISION=(
-  "https://huggingface.co/laion/CLIP-ViT-H-14-laion2B-s32B-b79K/resolve/main/open_clip_pytorch_model.bin"
 )
 
 CHECKPOINT_MODELS=(
     "https://huggingface.co/SG161222/RealVisXL_V4.0/resolve/main/RealVisXL_V4.0.safetensors"
 )
 
-LORA_MODELS=(
-    "https://civitai.com/api/download/models/16576"
-    "https://civitai.com/api/download/models/126807?type=Model&format=SafeTensor"
-    "https://civitai.com/api/download/models/173623?type=Model&format=SafeTensor"
-    "https://civitai.com/api/download/models/268857?type=Model&format=SafeTensor"
-    "https://civitai.com/api/download/models/162461?type=Model&format=SafeTensor"
-    "https://civitai.com/api/download/models/146364?type=Model&format=SafeTensor"
-    "https://civitai.com/api/download/models/160130?type=Model&format=SafeTensor"
-)
-
 VAE_MODELS=(
     "https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors"
-    "https://huggingface.co/madebyollin/taesdxl/resolve/main/taesdxl_decoder.safetensors"
-    "https://huggingface.co/madebyollin/taesdxl/resolve/main/taesdxl_encoder.safetensors"
-)
-UPSCALERS=(
-    "https://huggingface.co/uwg/upscaler/"
-)
-
-SAMS=(
-    "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth"
 )
 
 
 ### DO NOT EDIT BELOW HERE UNLESS YOU KNOW WHAT YOU ARE DOING ###
 
 function provisioning_start() {
-    sudo apt-get install git-lfs
     DISK_GB_AVAILABLE=$(($(df --output=avail -m "${WORKSPACE}" | tail -n1) / 1000))
     DISK_GB_USED=$(($(df --output=used -m "${WORKSPACE}" | tail -n1) / 1000))
     DISK_GB_ALLOCATED=$(($DISK_GB_AVAILABLE + $DISK_GB_USED))
@@ -78,35 +45,15 @@ function provisioning_start() {
         "${WORKSPACE}/storage/stable_diffusion/models/ckpt" \
         "${CHECKPOINT_MODELS[@]}"
     provisioning_get_models \
-        "${WORKSPACE}/storage/stable_diffusion/models/lora" \
-        "${LORA_MODELS[@]}"
-    provisioning_get_models \
         "${WORKSPACE}/storage/stable_diffusion/models/vae" \
         "${VAE_MODELS[@]}"
     provisioning_get_models \
         "${WORKSPACE}/storage/stable_diffusion/models/controlnet/instantid" \
           "https://huggingface.co/InstantX/InstantID/resolve/main/ControlNetModel/diffusion_pytorch_model.safetensors"
     provisioning_get_models \
-        "${WORKSPACE}/storage/stable_diffusion/models/clip_vision" \
-        "${CLIP_VISION[@]}"
-    provisioning_get_models \
-        "/opt/ComfyUI/models/sams" \
-        "${SAMS[@]}"
-    provisioning_get_models \
         "/opt/ComfyUI/custom_nodes/ComfyUI-BRIA_AI-RMBG/RMBG-1.4" \
         "https://huggingface.co/briaai/RMBG-1.4/resolve/main/model.pth"
-    provisioning_get_models \
-        "/opt/ComfyUI/models/photomaker" \
-        "https://huggingface.co/TencentARC/PhotoMaker/blob/main/photomaker-v1.bin"
     provisioning_print_end
-}
-
-function provisioning_get_upscale_models() {
-    for repo in "${UPSCALERS[@]}"; do
-        path="/opt/ComfyUI/models/upscale_models"
-        printf "Downloading upscale models: %s...\n" "${repo}"
-        git clone "${repo}" "${path}" --recursive
-    done
 }
 
 function provisioning_get_nodes() {
